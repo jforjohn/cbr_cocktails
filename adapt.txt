@@ -1,0 +1,13 @@
+<recipe>
+<title>Creole cream (cocktail)</title>
+<ingredients>
+<ingredient food=>'4 cl  white rum'</ingredient>
+<ingredient food=>'4 cl Vermouth'</ingredient>
+<ingredient food=>'2 cl  lemon juice'</ingredient>
+<ingredient food=>'2 cl  orange'</ingredient>
+</ingredients>
+<preparation>
+<step>'Pour the rum, vermouth, lemon juice and grenadine</step>
+<step>}}'</step>
+</preparation>
+</recipe>

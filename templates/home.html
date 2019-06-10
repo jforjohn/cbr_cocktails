@@ -1,0 +1,32 @@
+{% extends "template.html" %}
+{% block content %}
+<!-- Main jumbotron for a primary marketing message or call to action -->
+<div class="jumbotron">
+    <div class="container">
+        <h1 class="display-3">Welcome to the Bartender App!</h1>
+        <p>In here we will help you decide which is the best cocktail for you! Just tell us what your tastes are and we will propose some cocktails you might like. Then it's up to you to try them and experiment!</p>
+        <p><a class="btn btn-primary btn-lg" href="/prepare" role="button">Get Started &raquo;</a></p>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Example row of columns -->
+    <div class="row">
+        <div class="col-md-6">
+            <img class="rounded-circle" src="../static/css/images/cocktails_h.jpg" alt="Suggest me something!" width="280" height="140">
+            <h2>Suggest a Cocktail</h2>
+            <p>Tell us your tastes and we will recommend the best cocktail for you</p>
+            <p><a class="btn btn-secondary" href="/prepare" role="button">Check it out &raquo;</a></p>
+        </div>
+        <div class="col-md-6">
+            <img class="rounded-circle" src="../static/css/images/cocktails_header.jpg" alt="Show me what you've got!" width="280" height="140">
+            <h2>List of Cocktails</h2>
+            <p>Review our full list of cocktails and decide which one is the right for you</p>
+            <p><a class="btn btn-secondary" href="/catalog" role="button">Let's go &raquo;</a></p>
+        </div>
+    </div>
+
+    <hr>
+
+</div> <!-- /container -->
+{% endblock %}
