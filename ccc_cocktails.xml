@@ -49,13 +49,13 @@
     <ingredient quantity="50" unit="cl" food="kirsch">50 cl kirsch</ingredient>
     <ingredient quantity="1" unit="l" food="Lemonade">1 l Lemonade</ingredient>
     <ingredient quantity="1" unit="" food="lemon">1  lemon</ingredient>
-    <ingredient quantity="225" unit="cl" food="Cr&#xE9;mant">225 cl Cr&#xE9;mant</ingredient>
+    <ingredient quantity="225" unit="cl" food="Cremant">225 cl Cremant</ingredient>
   </ingredients>
   <preparation>
     <step>The day before: put the raspberries, lemon slices, 3 glasses of cane sugar syrup, kirsch and half lemonade in a large container and marinate in the fridge.</step>
     <step>Put the rest of lemonade and bottles of sparkling wine in the fridge.</step>
     <step>Just before serving:</step>
-    <step>Added to the preparation the day before the rest of lemonade and bottles of Cr&#xE9;mant. Taste and add sugar cane if necessary because certain sound more bitter than other cr&#xE9;mants.}}</step>
+    <step>Added to the preparation the day before the rest of lemonade and bottles of Cremant. Taste and add sugar cane if necessary because certain sound more bitter than other cremants.}}</step>
   </preparation>
 </recipe>
   <recipe>
@@ -119,7 +119,7 @@
     <ingredient quantity="30" unit="cl" food="Lemonade">30 cl Lemonade</ingredient>
   </ingredients>
   <preparation>
-    <step>Wash, remove stems fraises.Les mixer.Ajouter put in the lime juice and lemonade and sucre.Mixer.Verser mixer nouveau.R&#xE9;server refrigerate until serving time.</step>
+    <step>Wash, remove stems fraises.Les mixer.Ajouter put in the lime juice and lemonade and sucre.Mixer.Verser mixer nouveau.Ro server refrigerate until serving time.</step>
     <step>Here it is finished!</step>
     <step>Enjoy it!}}</step>
   </preparation>
@@ -230,7 +230,7 @@
   </preparation>
 </recipe>
   <recipe>
-  <title>Pi&#xF1;a Colada (cocktail)</title>
+  <title>Pina Colada (cocktail)</title>
   <ingredients>
     <ingredient quantity="125" unit="g" food="malibu rum">125 g malibu rum</ingredient>
     <ingredient quantity="150" unit="g" food="light whipping cream">150 g light whipping cream</ingredient>
@@ -408,7 +408,7 @@
   </ingredients>
   <preparation>
     <step>Place ingredients in a shaker. Shake vigorously by firmly with both hands the shaker and plugs.</step>
-    <step>Pour into pretty glasses cocktail.D&#xE9;corer this preparation hazelnut powder.}}</step>
+    <step>Pour into pretty glasses cocktail.Decorer this preparation hazelnut powder.}}</step>
   </preparation>
 </recipe>
   <recipe>
@@ -450,7 +450,7 @@
     <ingredient quantity="0" unit="" food="ice cube">ice cubes</ingredient>
   </ingredients>
   <preparation>
-    <step>Cut a slice of Lime and settle to the bottom of the glass cocktail.Mettre ice in a clean cloth, and mash with a marteau.Couper basil leaves into small pieces and mix with ice pil&#xE9;e.Remplir glass crushed / basil ice cream 2 tiers.Ajouter 5 cl of rum, 5 cl of liquid cane sugar and the juice of the remaining lime, then fill with water gazeuse.Saupoudrer brown sugar.}}</step>
+    <step>Cut a slice of Lime and settle to the bottom of the glass cocktail.Mettre ice in a clean cloth, and mash with a marteau.Couper basil leaves into small pieces and mix with ice pilee.Remplir glass crushed / basil ice cream 2 tiers.Ajouter 5 cl of rum, 5 cl of liquid cane sugar and the juice of the remaining lime, then fill with water gazeuse.Saupoudrer brown sugar.}}</step>
   </preparation>
 </recipe>
   <recipe>
@@ -592,7 +592,7 @@
   </preparation>
 </recipe>
   <recipe>
-  <title>Cocktail champanis&#xE9;</title>
+  <title>Cocktail champanise;</title>
   <ingredients>
     <ingredient quantity="4" unit="l" food="sparkling wine">4 l sparkling wine</ingredient>
     <ingredient quantity="1" unit="l" food="cointreau">0.5 l cointreau</ingredient>
@@ -746,8 +746,8 @@
     <ingredient quantity="20" unit="g" food="pistachio nut">20 g pistachio nut</ingredient>
   </ingredients>
   <preparation>
-    <step>1. Mix the raspberries with cream and 15 ml water glac&#xE9;e.R&#xE9;partissez the mixture in glasses.</step>
-    <step>2. Add a dash of whiskey and sprinkle with pistachios concass&#xE9;es.D&#xE9;corez a rod coriander and keep cool until ready to serve.}}</step>
+    <step>1. Mix the raspberries with cream and 15 ml water glace.Ropartissez the mixture in glasses.</step>
+    <step>2. Add a dash of whiskey and sprinkle with pistachios concasses.Decorez a rod coriander and keep cool until ready to serve.}}</step>
   </preparation>
 </recipe>
   <recipe>
@@ -845,7 +845,7 @@
     <ingredient quantity="3" unit="cl" food="Gin">3 cl Gin</ingredient>
   </ingredients>
   <preparation>
-    <step>In a shaker, fill with ice moiti&#xE9;.Verser ingredients.</step>
+    <step>In a shaker, fill with ice moitie.Verser ingredients.</step>
     <step>Hit.</step>
     <step>Serve in a cocktail glass and add lemon zest.}}</step>
   </preparation>
@@ -1045,16 +1045,16 @@
   </ingredients>
   <preparation>
     <step>Cut an apple into thin slices and sprinkle with lemon juice. Book.</step>
-    <step>6 Put ice in your shaker, pour 10 cl apple juice 5 cl and 10 cl calvados cr&#xE8;me de cassis.</step>
+    <step>6 Put ice in your shaker, pour 10 cl apple juice 5 cl and 10 cl calvados creme de cassis.</step>
     <step>Shake for 10 seconds.</step>
     <step>Divide into 4 cocktail glasses, then fill with champagne.</step>
     <step>Decorate blackcurrant, apple and pineapple.}}</step>
   </preparation>
 </recipe>
   <recipe>
-  <title>Ca&#xEF;pirinha</title>
+  <title>Cachacapirinha</title>
   <ingredients>
-    <ingredient quantity="4" unit="cl" food="cacha&#xE7;a">4 cl cacha&#xE7;a</ingredient>
+    <ingredient quantity="4" unit="cl" food="cachaca">4 cl cachaca</ingredient>
     <ingredient quantity="0.5" unit="" food="lime">1/2 lime</ingredient>
     <ingredient quantity="1" unit="tsp" food="Granulated sugar">1 teaspoon white sugar</ingredient>
     <ingredient quantity="1" unit="c" food="ice cube">1 cup ice cubes</ingredient>
@@ -1097,7 +1097,7 @@
   <title>Melon cocktail bubbles</title>
   <ingredients>
     <ingredient quantity="2" unit="" food="melon">2  melon</ingredient>
-    <ingredient quantity="1" unit="l" food="Cr&#xE9;mant">1 l Cr&#xE9;mant</ingredient>
+    <ingredient quantity="1" unit="l" food="Cremant">1 l Cremant</ingredient>
     <ingredient quantity="10" unit="cl" food="cane sugar">10 cl cane sugar</ingredient>
     <ingredient quantity="1" unit="" food="lemon">1  lemon</ingredient>
     <ingredient quantity="0" unit="" food="ice cube">ice cube</ingredient>
@@ -1362,7 +1362,7 @@
   </preparation>
 </recipe>
   <recipe>
-  <title>Cocktail variant (based ros&#xE9;)</title>
+  <title>Cocktail variant (based rose)</title>
   <ingredients>
     <ingredient quantity="5.33" unit="l" food="blush wine">5.33  blush wine</ingredient>
     <ingredient quantity="0.66" unit="l" food="orange syrup">0.66  Orange Syrup</ingredient>
@@ -1464,7 +1464,7 @@
   </preparation>
 </recipe>
   <recipe>
-  <title>Pi&#xF1;a colada</title>
+  <title>Pina colada</title>
   <ingredients>
     <ingredient quantity="4" unit="cl" food="white rum">4 cl white rum</ingredient>
     <ingredient quantity="2" unit="cl" food="amber rum">2 cl amber rum</ingredient>
