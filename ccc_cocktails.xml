@@ -138,7 +138,7 @@
   <recipe>
   <title>Citrouillette (champagne cocktail)</title>
   <ingredients>
-    <ingredient quantity="4" unit="cl" food="Noilly_Prat">4 cl  Noilly Prat</ingredient>
+    <ingredient quantity="4" unit="cl" food="Noilly Prat">4 cl  Noilly Prat</ingredient>
     <ingredient quantity="8" unit="cl" food="champagne">8 cl  champagne</ingredient>
   </ingredients>
   <preparation>
