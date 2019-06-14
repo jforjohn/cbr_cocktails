@@ -1,6 +1,6 @@
-fruit:lemon
+fruit:
 vegetables:
-alcoholicLiqueurs:
+alcoholicLiqueurs:vodka
 nonalcoholicLiqueurs:
 tasteEnhancers:
-others:ice cube
+others:
