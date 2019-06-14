@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, url_for, redirect
-from cocktailList import *
+from main import *
 
 app = Flask(__name__)
 
@@ -36,19 +36,33 @@ def catalog():
 @app.route('/prepare', methods=['GET', 'POST'])
 def prepare():
 	if request.method == 'POST':
-		fruits = request.form['fruit']
-		vegetables = request.form['vegetable']
-		alcoholic = request.form['alcoholicLiqueur']
-		nonalcoholic = request.form['nonalcoholicLiqueur']
-		enhancers = request.form['tasteEnhancers']
-		others = request.form.getlist('others')
-		put_cocktails(fruits, vegetables, alcoholic, nonalcoholic, enhancers, others)
-		retrieval()
-		cocktail = []
-		with open('output.txt', 'r') as f:
-			for line in f.readlines():
-				cocktail.append(line.strip().split(','))
-		return render_template('prepare.html', matchedcocktail=cocktail)
+		fruits = [ingredient.strip() for ingredient in request.form['fruit_input'].split(',')]
+		vegetables = [ingredient.strip() for ingredient in request.form['vegetable_input'].split(',')]
+		alcoholic = [ingredient.strip() for ingredient in request.form['alcohol_input'].split(',')]
+		nonalcoholic = [ingredient.strip() for ingredient in request.form['non_alcohol_input'].split(',')]
+		enhancers = [ingredient.strip() for ingredient in request.form['enhancer_input'].split(',')]
+		others = [ingredient.strip() for ingredient in request.form['other_input'].split(',')]
+
+		input_ingredients = fruits + vegetables + alcoholic + nonalcoholic + enhancers + others
+		input_ingredients = list(filter(None, input_ingredients))
+
+		# put_cocktails()
+		# retrieval()
+		cocktails = get_recommendation(input_ingredients)
+
+		cocktails_list = []
+		for cocktail_name, ingredients in cocktails.items():
+			ingredients_list = []
+			for ingredient in ingredients.values():
+				if ingredient:
+					ingredients_list.append(ingredient)
+			cocktails_list.append([cocktail_name, ingredients_list])
+
+		# cocktail = []
+		# with open('output.txt', 'r') as f:
+		# 	for line in f.readlines():
+		# 		cocktail.append(line.strip().split(','))
+		return render_template('prepare.html', matchedcocktail=cocktails_list)
 	else:
 		return render_template('prepare.html')
 

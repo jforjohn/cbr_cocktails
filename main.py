@@ -3,6 +3,24 @@
 from xml.dom import minidom
 from lxml import etree
 import os
+import pandas as pd
+
+
+class Ingredients:
+	list = {
+		('liquid', 'alcohol', 'soft', 'bw'): [],
+		('liquid', 'alcohol', 'soft'): [],
+		('liquid', 'alcohol'): [],
+		('liquid', 'juices'): [],
+		('liquid', 'juices', 'citric'): [],
+		('solid', 'fruits'): [],
+		('solid', 'fruits', 'citric'): [],
+		('solid', 'veggies'): [],
+		('te', 'syrups'): [],
+		('te', 'sweet'): [],
+		('te',): [],
+		('others',): []
+	}
 
 
 def get_title_root(title_list, title_value):
@@ -46,8 +64,100 @@ def get_cocktail_list():
 	xml_doc = minidom.parse('taxonomy/cocktails.xml')
 	cocktail_list = [title.childNodes[0].nodeValue for title in xml_doc.getElementsByTagName('title')]
 	return sorted(cocktail_list)
-	
-	
+
+
+def get_ingredients_list():
+	taxonomy = pd.read_csv('taxonomy.csv', header=0)
+	tree = etree.parse('taxonomy/cocktails.xml')
+	recipes = tree.findall('recipe')
+	# process each sentence in the file
+	# titles = []
+	# all_ingredients = Ingredients()
+	# cocktails = {}
+	# for recipe in recipes:
+	# 	title = recipe[0].text
+	# 	titles.append(title)
+	# 	ingredients = recipe[1]
+	# 	ingredients_list = Ingredients()
+	# 	for ingredient in ingredients:
+	# 		ingredient_val = ingredient.values()[-1].lower()
+	# 		# all_ingredients.append(ingredient_val)
+	# 		for col in taxonomy.columns:
+	# 			col_tup = tuple(col.split('-'))
+	#
+	# 			if taxonomy[col].isin([ingredient_val]).any():
+	# 				ingredients_list.list[col_tup].append(ingredient_val)
+	# 				all_ingredients.list[col_tup].append(ingredient_val)
+	# 				break
+
+	titles = []
+	all_ingredients = {
+			('liquid', 'alcohol', 'soft', 'bw'): [],
+			('liquid', 'alcohol', 'soft'): [],
+			('liquid', 'alcohol'): [],
+			('liquid', 'juices'): [],
+			('liquid', 'juices', 'citric'): [],
+			('solid', 'fruits'): [],
+			('solid', 'fruits', 'citric'): [],
+			('solid', 'veggies'): [],
+			('te', 'syrups'): [],
+			('te', 'sweet'): [],
+			('te',): [],
+			('others',): []
+		}
+	cocktails = {}
+	for recipe in recipes:
+		title = recipe[0].text
+		titles.append(title)
+		ingredients = recipe[1]
+		ingredients_list = {
+			('liquid', 'alcohol', 'soft', 'bw'): [],
+			('liquid', 'alcohol', 'soft'): [],
+			('liquid', 'alcohol'): [],
+			('liquid', 'juices'): [],
+			('liquid', 'juices', 'citric'): [],
+			('solid', 'fruits'): [],
+			('solid', 'fruits', 'citric'): [],
+			('solid', 'veggies'): [],
+			('te', 'syrups'): [],
+			('te', 'sweet'): [],
+			('te',): [],
+			('others',): []
+		}
+		for ingredient in ingredients:
+			ingredient_val = ingredient.values()[-1].lower()
+			# all_ingredients.append(ingredient_val)
+			for col in taxonomy.columns:
+				col_tup = tuple(col.split('-'))
+
+				if taxonomy[col].isin([ingredient_val]).any():
+					ingredients_list[col_tup].append(ingredient_val)
+					all_ingredients[col_tup].append(ingredient_val)
+
+		cocktails[title] = ingredients_list
+
+	# globals()['all_ingredients'] = all_ingredients
+	# globals()['all_cocktails'] = cocktails
+
+	# f = open("test", "w")
+	# for cocktail, ingredients in all_ingredients.items():
+	# 	print(cocktail, file=f)
+	# 	for category, ingredient in ingredients.items():
+	# 		print(category, file=f)
+	# 		print(ingredient, file=f)
+
+	return cocktails, all_ingredients
+
+
+def get_ingredient_taxonomy(ingredient, ingredients_list):
+	# f = open("test", "a")
+	# print(ingredient, file=f)
+	for category, ingredients in ingredients_list.items():
+		if ingredient in ingredients:
+			return category
+	return "none"
+
+
 def get_xml_text(parent, node_name):
 	node = parent.getElementsByTagName(node_name)[0]
 	return "".join([child.toxml() for child in node.childNodes])
@@ -129,7 +239,7 @@ def get_similarity_score():
 	def file_read(file_path, var):
 		file = open(file_path)
 		globals()[var] = file.readlines()
-		f.close()
+		file.close()
 
 	file_read("taxonomy/cocktail_recipe_lib", 'recipes')
 	file_read("taxonomy/alcoholicLiqueurs", 'alcoholicLiqueurs')
@@ -143,12 +253,12 @@ def get_similarity_score():
 
 	# Snippet to generate similarity score based on similarity matrices
 	def get_score(ing, cing, itype):
-			reference = eval(str(itype))
-			for recs in reference:
-				recs = recs.strip()
-				recs = recs.split(',')
-				if (recs[0] == ing and recs[1] == cing) or (recs[0] == cing and recs[1] == ing):
-						return recs[2]
+		reference = eval(str(itype))
+		for recs in reference:
+			recs = recs.strip()
+			recs = recs.split(',')
+			if (recs[0] == ing and recs[1] == cing) or (recs[0] == cing and recs[1] == ing):
+				return recs[2]
 
 	# User input is verified against recipes to find out similar ones
 	for recipe in recipes:
@@ -172,9 +282,12 @@ def get_similarity_score():
 						# Getting score for similarities of each and every input ingredients
 						# against recipes (Only that are in same category)
 						scr = get_score(sub_ing, cing, itype)
+						print(sub_ing)
+						print(cing)
+						print(itype)
 						if ctype == "alcoholicLiqueurs":
-								alcohol_content += 1
-						if scr is not None and score[itype] < scr:
+							alcohol_content += 1
+						if scr is not None and score[itype] < float(scr):
 							score[ctype] = scr  # Maximum similarity will be retained
 		for k, v in score.items():
 			# Individual similarity values are added up to get the similarity score between input vs recipe
@@ -204,9 +317,32 @@ def get_similarity_score():
 	f.close()
 
 
-def retrieval():
-	xml_parse()
-	get_similarity_score()
+def get_recommendation(input_ingredients):
+	cocktails_list, ingredients_list = get_ingredients_list()
+	ingredient_taxonomies = []
+	for ingredient in input_ingredients:
+		taxonomy = get_ingredient_taxonomy(ingredient, ingredients_list)
+		ingredient_taxonomies.append([taxonomy, ingredient])
+
+	# f = open("test2", "w")
+	# exact matching
+	cocktail_list_copy = cocktails_list
+	for taxonomy, ingredient in ingredient_taxonomies:
+		for cocktail, ingredients in list(cocktail_list_copy.items()):
+			found = False
+			for i in ingredients.values():
+				if ingredient in i:
+					found = True
+			if not found:
+				del cocktails_list[cocktail]
+
+	# for cocktail, ingredients in cocktails_list.items():
+	# 	print(cocktail, file=f)
+	# 	for category, ingredient in ingredients.items():
+	# 		print(category, file=f)
+	# 		print(ingredient, file=f)
+
+	return cocktails_list
 
 
 def write_adapt_details(cName, cIngredient, cPreparation):
