@@ -42,21 +42,33 @@ def prepare():
 		nonalcoholic = [ingredient.strip() for ingredient in request.form['non_alcohol_input'].split(',')]
 		enhancers = [ingredient.strip() for ingredient in request.form['enhancer_input'].split(',')]
 		others = [ingredient.strip() for ingredient in request.form['other_input'].split(',')]
+		preference = request.form['preferences_input']
 
 		input_ingredients = fruits + vegetables + alcoholic + nonalcoholic + enhancers + others
 		input_ingredients = list(filter(None, input_ingredients))
 
 		# put_cocktails()
 		# retrieval()
-		cocktails = get_recommendation(input_ingredients)
+		cocktail_1, cocktail_2 = get_recommendation(input_ingredients, preference)
 
+		cocktails = []
+		cocktails.append(cocktail_1)
+		cocktails.append(cocktail_2)
 		cocktails_list = []
-		for cocktail_name, ingredients in cocktails.items():
+		for score, cocktail_name, ingredients in cocktails:
 			ingredients_list = []
 			for ingredient in ingredients.values():
 				if ingredient:
 					ingredients_list.append(ingredient)
-			cocktails_list.append([cocktail_name, ingredients_list])
+			cocktails_list.append([cocktail_name, ingredients_list, score])
+
+		# f = open("test", "w")
+		# for similarity, cocktail, ingredients in cocktails:
+		# 	print(similarity, file=f)
+		# 	print(cocktail, file=f)
+		# 	for category, ingredient in ingredients.items():
+		# 		print(category, file=f)
+		# 		print(ingredient, file=f)
 
 		# cocktail = []
 		# with open('output.txt', 'r') as f:
@@ -70,21 +82,22 @@ def prepare():
 @app.route('/adapt', methods=['GET', 'POST'])
 def adapt():
 	if request.method == 'POST':
-		check = request.form['AdaptName'] 
+		check = request.form['adapt_name']
 		if check == 'true':
-			write_adapt_details(
-				request.form['AdaptCName'],
-				request.form['AdaptCIngredients'],
-				request.form['AdaptCPreparation']
+			recipe = get_adapted_recipe(
+				request.form['adapt_cname'],
+				request.form['adapt_cingredients'],
+				request.form['adapt_cpreparation']
 			)
-			adaptXML()
+			if recipe != "wrong ingredient":
+				write_recipe_to_catalog(recipe)
 			return render_template('adapt.html', Saved="Done")
 		else:
 			return render_template(
 				'adapt.html',
-				name=request.form['AdaptName'],
-				PreparationData=listToStringWithoutBrackets(get_cocktail_preparation(request.form['AdaptName'])),
-				IngredientData=listToStringWithoutBrackets(get_cocktail_ingredient(request.form['AdaptName']))
+				name=request.form['adapt_name'],
+				PreparationData=listToStringWithoutBrackets(get_cocktail_preparation(request.form['adapt_name'])),
+				IngredientData=listToStringWithoutBrackets(get_cocktail_ingredient(request.form['adapt_name']))
 			)
 	else:
 		return render_template('adapt.html')

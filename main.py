@@ -1,9 +1,15 @@
 # coding: utf-8
 
 from xml.dom import minidom
+
 from lxml import etree
-import os
+import numpy as np
 import pandas as pd
+from os import path
+from collections import Counter
+from copy import deepcopy
+from math import log
+from itertools import combinations
 
 
 class Ingredients:
@@ -70,60 +76,41 @@ def get_ingredients_list():
 	taxonomy = pd.read_csv('taxonomy.csv', header=0)
 	tree = etree.parse('taxonomy/cocktails.xml')
 	recipes = tree.findall('recipe')
-	# process each sentence in the file
-	# titles = []
-	# all_ingredients = Ingredients()
-	# cocktails = {}
-	# for recipe in recipes:
-	# 	title = recipe[0].text
-	# 	titles.append(title)
-	# 	ingredients = recipe[1]
-	# 	ingredients_list = Ingredients()
-	# 	for ingredient in ingredients:
-	# 		ingredient_val = ingredient.values()[-1].lower()
-	# 		# all_ingredients.append(ingredient_val)
-	# 		for col in taxonomy.columns:
-	# 			col_tup = tuple(col.split('-'))
-	#
-	# 			if taxonomy[col].isin([ingredient_val]).any():
-	# 				ingredients_list.list[col_tup].append(ingredient_val)
-	# 				all_ingredients.list[col_tup].append(ingredient_val)
-	# 				break
-
 	titles = []
 	all_ingredients = {
-			('liquid', 'alcohol', 'soft', 'bw'): [],
-			('liquid', 'alcohol', 'soft'): [],
-			('liquid', 'alcohol'): [],
-			('liquid', 'juices'): [],
-			('liquid', 'juices', 'citric'): [],
-			('solid', 'fruits'): [],
-			('solid', 'fruits', 'citric'): [],
-			('solid', 'veggies'): [],
-			('te', 'syrups'): [],
-			('te', 'sweet'): [],
-			('te',): [],
-			('others',): []
-		}
+		('alco', 'soft', 'bw'): [],
+		('alco', 'soft'): [],
+		('alco',): [],
+		('noalco', 'fruits', 'juices', 'j_sweet'): [],
+		('noalco', 'fruits', 'juices', 'j_citric'): [],
+		('noalco', 'fruits', 'solid', 's_sweet'): [],
+		('noalco', 'fruits', 'solid', 's_citric'): [],
+		('noalco', 'veggies'): [],
+		('noalco', 'fruits', 'syrups', 'j_sweet'): [],
+		('te', 'sweet'): [],
+		('te',): [],
+		('others',): []
+	}
 	cocktails = {}
 	for recipe in recipes:
 		title = recipe[0].text
 		titles.append(title)
 		ingredients = recipe[1]
 		ingredients_list = {
-			('liquid', 'alcohol', 'soft', 'bw'): [],
-			('liquid', 'alcohol', 'soft'): [],
-			('liquid', 'alcohol'): [],
-			('liquid', 'juices'): [],
-			('liquid', 'juices', 'citric'): [],
-			('solid', 'fruits'): [],
-			('solid', 'fruits', 'citric'): [],
-			('solid', 'veggies'): [],
-			('te', 'syrups'): [],
+			('alco', 'soft', 'bw'): [],
+			('alco', 'soft'): [],
+			('alco',): [],
+			('noalco', 'fruits', 'juices', 'j_sweet'): [],
+			('noalco', 'fruits', 'juices', 'j_citric'): [],
+			('noalco', 'fruits', 'solid', 's_sweet'): [],
+			('noalco', 'fruits', 'solid', 's_citric'): [],
+			('noalco', 'veggies'): [],
+			('noalco', 'fruits', 'syrups', 'j_sweet'): [],
 			('te', 'sweet'): [],
 			('te',): [],
 			('others',): []
 		}
+
 		for ingredient in ingredients:
 			ingredient_val = ingredient.values()[-1].lower()
 			# all_ingredients.append(ingredient_val)
@@ -317,50 +304,61 @@ def get_similarity_score():
 	f.close()
 
 
-def get_recommendation(input_ingredients):
-	cocktails_list, ingredients_list = get_ingredients_list()
-	ingredient_taxonomies = []
-	for ingredient in input_ingredients:
-		taxonomy = get_ingredient_taxonomy(ingredient, ingredients_list)
-		ingredient_taxonomies.append([taxonomy, ingredient])
+# def get_recommendation(input_ingredients):
+# 	cocktails_list, ingredients_list = get_ingredients_list()
+# 	ingredient_taxonomies = []
+# 	for ingredient in input_ingredients:
+# 		taxonomy = get_ingredient_taxonomy(ingredient, ingredients_list)
+# 		ingredient_taxonomies.append([taxonomy, ingredient])
+#
+# 	# f = open("test2", "w")
+# 	# exact matching
+# 	cocktail_list_copy = cocktails_list
+# 	for taxonomy, ingredient in ingredient_taxonomies:
+# 		for cocktail, ingredients in list(cocktail_list_copy.items()):
+# 			found = False
+# 			for i in ingredients.values():
+# 				if ingredient in i:
+# 					found = True
+# 			if not found:
+# 				del cocktails_list[cocktail]
+#
+# 	# for cocktail, ingredients in cocktails_list.items():
+# 	# 	print(cocktail, file=f)
+# 	# 	for category, ingredient in ingredients.items():
+# 	# 		print(category, file=f)
+# 	# 		print(ingredient, file=f)
+#
+# 	return cocktails_list
 
-	# f = open("test2", "w")
-	# exact matching
-	cocktail_list_copy = cocktails_list
-	for taxonomy, ingredient in ingredient_taxonomies:
-		for cocktail, ingredients in list(cocktail_list_copy.items()):
-			found = False
-			for i in ingredients.values():
-				if ingredient in i:
-					found = True
-			if not found:
-				del cocktails_list[cocktail]
 
-	# for cocktail, ingredients in cocktails_list.items():
-	# 	print(cocktail, file=f)
-	# 	for category, ingredient in ingredients.items():
-	# 		print(category, file=f)
-	# 		print(ingredient, file=f)
+def get_adapted_recipe(name, ingredient, preparation):
+	ingredient_list = ingredient.split(",")
+	preparation_list = preparation.split(".")
+	cocktails, ingredients = get_ingredients_list()
 
-	return cocktails_list
+	recipe = ("<recipe>"+'\n')
+	recipe += ("<title>"+name.strip()+"</title>"+'\n')
+	recipe += ("<ingredients>"+'\n')
 
+	for i in ingredient_list:
+		food = i.strip().replace('[', '').replace(']', '').replace("}}", '').replace("'", '').split(' ', 1)[1]
+		if "of " in food:
+			food = food.split('of ', 1)[1]
+		taxonomy = get_ingredient_taxonomy(food, ingredients)
+		if taxonomy == "none":
+			return "wrong ingredient"
 
-def write_adapt_details(cName, cIngredient, cPreparation):
-	CIngredientList = cIngredient.split(",")
-	CPreparationList = cPreparation.split(".")
-	text_file = open("adapt.txt", "w")
-	text_file.write("<recipe>"+'\n')
-	text_file.write("<title>"+cName.strip()+"</title>"+'\n')
-	text_file.write("<ingredients>"+'\n')
-	for i in CIngredientList:
-		text_file.write("<ingredient food="">"+i.strip()+"</ingredient>"+'\n')
-	text_file.write("</ingredients>"+'\n')
-	text_file.write("<preparation>"+'\n')
-	for i in CPreparationList:
-		text_file.write("<step>"+i.strip()+"</step>"+'\n')
-	text_file.write("</preparation>"+'\n')
-	text_file.write("</recipe>"+'\n')
-	text_file.close()
+		recipe += ("<ingredient food=\""+food+"\">"+i+"</ingredient>"+'\n')
+	recipe += ("</ingredients>"+'\n')
+	recipe += ("<preparation>"+'\n')
+
+	for i in preparation_list:
+		i = i.strip().replace('[', '').replace(']', '').replace("}}", '').replace("'", '').replace("', '", '')
+		recipe += ("<step>"+i.strip()+"</step>"+'\n')
+	recipe += ("</preparation>"+'\n')
+	recipe += ("</recipe>"+'\n')
+	return recipe
 
 
 def listToStringWithoutBrackets(list1):
@@ -368,18 +366,372 @@ def listToStringWithoutBrackets(list1):
 	return [i for i in list2 if len(i) > 2]
 
 
-def adaptXML():
-	f = open("taxonomy/cocktails.xml", "r")
-	a = f.readlines()
-	f.close()
-	a.pop()
-	
-	g = open("adapt.txt", "r")
-	h = g.readlines()
-	for i in h:
-		a.append(i)
+def write_recipe_to_catalog(recipe):
+	file = open("taxonomy/cocktails.xml", "r")
+	content = file.readlines()
 
-	f = open("taxonomy/cocktails.xml", "w")
-	for j in a:
-		f.write(j)
-	f.write("</recipes>")
+	file = open("taxonomy/cocktails.xml", "w")
+	file.writelines([item for item in content[:-1]])
+	for j in recipe:
+		file.write(j)
+	file.write("</recipes>")
+
+
+#########################
+#########################
+
+
+def get_recommendation(input_ingredients, preference):
+	global df_pmi
+
+	f = open("test2", "w")
+
+	q = {
+		('alco', 'soft', 'bw'): [],
+		('alco', 'soft'): [],
+		('alco',): [],
+		('noalco', 'fruits', 'juices', 'j_sweet'): [],
+		('noalco', 'fruits', 'juices', 'j_citric'): [],
+		('noalco', 'fruits', 'solid', 's_sweet'): [],
+		('noalco', 'fruits', 'solid', 's_citric'): [],
+		('noalco', 'veggies'): [],
+		('noalco', 'fruits', 'syrups', 'j_sweet'): [],
+		('te', 'sweet'): [],
+		('te',): [],
+		('others',): []
+	}
+	define_globals()
+	all_ingredients, cocktails = read_data()
+	cocktails_list, ingredients_list = get_ingredients_list()
+
+	for ingredient in input_ingredients:
+		taxonomy = get_ingredient_taxonomy(ingredient, ingredients_list)
+		print(taxonomy, file=f)
+		q[taxonomy].append(ingredient)
+
+	for cocktail, ingredient in q.items():
+		print(cocktail, file=f)
+		print(ingredient, file=f)
+
+	df_pmi = constract_pmi_table()
+	top_n_matches = 3
+	sim_match, cocktail_matches = get_matches(q, cocktails, preference, top_n=top_n_matches)
+	min_difference, max_score = find_best_adaptation(q, cocktails, cocktail_matches, preference)
+	return min_difference, max_score
+
+
+def define_globals():
+	global taxonomy_scheme
+	global all_ingredients
+	global df_pmi
+	global df_preferences
+	global taxonomy_general_cat
+	global recipes
+	taxonomy_scheme = {
+		('alco', 'soft', 'bw'): [],
+		('alco', 'soft'): [],
+		('alco',): [],
+		('noalco', 'fruits', 'juices', 'j_sweet'): [],
+		('noalco', 'fruits', 'juices', 'j_citric'): [],
+		('noalco', 'fruits', 'solid', 's_sweet'): [],
+		('noalco', 'fruits', 'solid', 's_citric'): [],
+		('noalco', 'veggies'): [],
+		('noalco', 'fruits', 'syrups', 'j_sweet'): [],
+		('te', 'sweet'): [],
+		('te',): [],
+		('others',): []
+	}
+
+	taxonomy_general_cat = [
+		'alco', 'noalco', 'te', 'others'
+	]
+
+	cols = [
+		('alco', 'soft', 'bw'),
+		('alco', 'soft'),
+		('alco',),
+		('noalco', 'fruits', 'juices', 'j_sweet'),
+		('noalco', 'fruits', 'juices', 'j_citric'),
+		('noalco', 'fruits', 'solid', 's_sweet'),
+		('noalco', 'fruits', 'solid', 's_citric'),
+		('noalco', 'veggies'),
+		('noalco', 'fruits', 'syrups', 'j_sweet'),
+		('te', 'sweet'),
+		('te',),
+		('others',)
+	]
+	idx = ['Alcohol', 'Sweet', 'Sour', 'Fruity', 'Default']
+	alco_vals = [0.85, 0.9, 1, 0.7, 0.7, 0.7, 0.7, 0.75, 0.75, 0.7, 0.8, 0.85]
+	sweet_vals = [0.9, 0.95, 0.8, 0.85, 0.5, 0.9, 0.65, 0.5, 1, 1, 0.8, 0.8]
+	sour_vals = [0.8, 0.6, 0.8, 0.7, 1, 0.75, 1, 0.8, 0.6, 0.6, 0.85, 0.8]
+	frutti_vals = [0.85, 0.9, 0.7, 1, 1, 1, 1, 0.7, 0.9, 0.65, 0.7, 0.85]
+	default = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+	df_preferences = pd.DataFrame(np.array([alco_vals, sweet_vals, sour_vals, frutti_vals, default]),
+								  columns=cols, index=idx)
+
+
+def read_data():
+	global recipes
+	global all_ingredients
+	# read
+	taxonomy = pd.read_csv('taxonomy.csv', header=0)
+	tree = etree.parse('ccc_cocktails.xml')
+
+	recipes = tree.findall('recipe')
+	titles = []
+	all_ingredients = []
+	cocktails = {}
+	for recipe in recipes:
+		title = recipe[0].text
+		titles.append(title)
+		ingredients = recipe[1]
+		ingredients_list = deepcopy(taxonomy_scheme)
+		for ingredient in ingredients:
+			ingredient_val = ingredient.values()[-1].lower()
+			all_ingredients.append(ingredient_val)
+			for col in taxonomy.columns:
+				col_tup = tuple(col.split('-'))
+
+				if taxonomy[col].isin([ingredient_val]).any():
+					ingredients_list[col_tup].append(ingredient_val)
+
+		cocktails[title] = ingredients_list
+	return all_ingredients, cocktails
+
+
+def constract_pmi_table():
+	unique_ingredients = set(all_ingredients)
+	df_pmi = pd.DataFrame(0, columns=unique_ingredients, index=unique_ingredients)
+	for recipe in recipes:
+		title = recipe[0].text
+		ingredients = recipe[1]
+		for ingredient_row in ingredients:
+			ingredient_val_row = ingredient_row.values()[-1].lower()
+			for ingredient_col in ingredients:
+				ingredient_val_col = ingredient_col.values()[-1].lower()
+				if ingredient_val_row != ingredient_val_col:
+					df_pmi.loc[ingredient_val_row, ingredient_val_col] += 1
+	return df_pmi
+
+
+def pmi_score(ingredient1, ingredient2, df_pmi):
+	fij = df_pmi.loc[ingredient1, ingredient2]
+	fi = df_pmi.loc[ingredient1, :].sum()
+	fj = df_pmi.loc[ingredient2, :].sum()
+	sum_all = df_pmi.values.sum()
+	print('fij', fij)
+	print('fifj', fi*fj)
+	p = fij/(fi*fj/sum_all)
+	'''
+	pmi = log(p, 2)
+	if pmi < 0:
+		pmi = 0
+	return pmi, p
+	'''
+	return p
+
+
+def get_cocktail_ingredient_list(cocktail):
+	ingredient_list = []
+	categories_list = []
+	for cat in taxonomy_scheme.keys():
+		for ingredient in cocktail[cat]:
+			categories_list.append(cat)
+			ingredient_list.append(ingredient)
+	return categories_list, ingredient_list
+
+
+def get_cocktail_pmi(cocktail, preference=''):
+	# cocktail pmi
+	catetgory_list, ingridient_list = get_cocktail_ingredient_list(cocktail)
+	pmi_score = 0
+	c_combos = 0
+
+	for ingredient1_tup, ingredient2_tup in combinations(zip(catetgory_list, ingridient_list), 2):
+		ingredient1 = ingredient1_tup[1]
+		ingredient2 = ingredient2_tup[1]
+		if preference:
+			cat1 = ingredient1_tup[0]
+			cat2 = ingredient2_tup[0]
+			w = (df_preferences[cat1][preference] + df_preferences[cat2][preference]) / 2
+		else:
+			w = 1
+		pmi_score += df_pmi.loc[ingredient1, ingredient2] * w
+		c_combos += 1
+	return pmi_score / c_combos
+
+
+def taxonomy_score(ingredient_tup1, ingredient_tup2):
+	common_ancestors = set(ingredient_tup1).intersection(set(ingredient_tup2))
+	all_ancestors = set(ingredient_tup1).union(set(ingredient_tup2))
+	return len(common_ancestors)/len(all_ancestors)
+
+
+def transform(cocktail):
+	categories = list(taxonomy_scheme.keys())
+	new_form = {}
+	for cat in categories:
+		for ingredient in cocktail[cat]:
+			ingredient_cat = tuple(list(cat) + [ingredient])
+			new_form.setdefault(cat[0], []).append(ingredient_cat)
+		if not cocktail[cat]:
+			new_form.setdefault(cat[0], [])
+	return new_form
+
+
+def match_cocktails(q_ingredients_list, cocktails, preference='Default'):
+	res = {}
+	categories = list(taxonomy_scheme.keys())
+	for title in cocktails.keys():
+		cocktail = cocktails[title]
+		cocktail_form = transform(cocktail)
+		query_form = transform(q_ingredients_list)
+		sim = 0
+		for gen_cat in taxonomy_general_cat:
+			for q_ingredient_cat in query_form[gen_cat]:
+				sim_gen_cat = 0
+				c_gen_cat = 0
+				# if the same ingredient exists in the cocktail
+				# assign a similarity of one and don't investigate further
+				if q_ingredient_cat in cocktail_form[gen_cat]:
+					sim_gen_cat = 1
+					c_gen_cat = 1
+				else:
+					for d_ingredient_cat in cocktail_form[gen_cat]:
+						q_cat = q_ingredient_cat[:-1]
+						d_cat = d_ingredient_cat[:-1]
+						w = (df_preferences[q_cat][preference] + df_preferences[d_cat][preference])/2
+						sim_gen_cat += (taxonomy_score(q_ingredient_cat, d_ingredient_cat) * w)
+						c_gen_cat += 1
+				if c_gen_cat:
+					sim += (sim_gen_cat/c_gen_cat)
+		res[title] = (sim, cocktail)
+	return res
+
+
+def get_matches(q, cocktails, preference, top_n=2):
+	#matches = exactMatchCocktails(q, cocktails)
+	matches = match_cocktails(q, cocktails, preference)
+	titles_sort = sorted(matches, key=lambda x: matches[x][0], reverse=True)
+	max_val = matches[titles_sort[0]][0]
+	final_match = {}
+	sim_match = {}
+	#top_n = 4
+	c_top = 0
+	for title in titles_sort:
+		if c_top < top_n: #matches[title][0] == max_val or
+			final_match[title] = matches[title][1]
+			sim_match[title] = matches[title][0]
+			c_top += 1
+	return sim_match, final_match
+
+
+def adaptation(cocktails, q_ingredients_list, preference='Default'):
+	res = {}
+	categories = list(taxonomy_scheme.keys())
+	for title in cocktails.keys():
+		cocktail = cocktails[title]
+		cocktail_form = transform(cocktail)
+		query_form = transform(q_ingredients_list)
+		sim = 0
+		df_dict = {}
+		same_ingredients = []
+		q_extras = []
+		d_extras = []
+		cols = set()
+		idx = set()
+		ingredient2cat = {}
+		final_cocktails = []
+		final_cocktails_combo = []
+		# final_cocktails.append(cocktail)
+		for gen_cat in taxonomy_general_cat:
+			same_ingredients.extend(list(set(query_form[gen_cat]).intersection(set(cocktail_form[gen_cat]))))
+			query_form[gen_cat] = list(set(query_form[gen_cat]) - set(same_ingredients))
+			cocktail_form[gen_cat] = list(set(cocktail_form[gen_cat]) - set(same_ingredients))
+			if not cocktail_form[gen_cat]:
+				q_extras.extend(query_form[gen_cat])
+			if not query_form[gen_cat]:
+				d_extras.extend(cocktail_form[gen_cat])
+
+			for q_ingredient_cat in query_form[gen_cat]:
+				for d_ingredient_cat in cocktail_form[gen_cat]:
+					q_cat = q_ingredient_cat[:-1]
+					d_cat = d_ingredient_cat[:-1]
+					w = (df_preferences[q_cat][preference] + df_preferences[d_cat][preference]) / 2
+					sim_gen_cat = taxonomy_score(q_cat, d_cat) * w
+
+					# print(d_ingredient_cat[-1], q_ingredient_cat[-1], sim_gen_cat)
+					cols.add(d_ingredient_cat)
+					idx.add(q_ingredient_cat)
+					ingredient2cat[d_ingredient_cat[-1]] = d_ingredient_cat[:-1]
+					ingredient2cat[q_ingredient_cat[-1]] = q_ingredient_cat[:-1]
+					df_dict.setdefault(d_ingredient_cat[-1], {})[q_ingredient_cat[-1]] = sim_gen_cat
+
+		df = pd.DataFrame(df_dict)
+		# print(df)
+		# print('extras', q_extras, d_extras)
+		# we change the one in the column with the max in the index
+		if df.empty:
+			find_replacements = pd.DataFrame([])
+		else:
+			find_replacements = df.idxmax(axis=1)
+
+		cocktail_add = deepcopy(cocktail)
+		cocktail_replace = deepcopy(cocktail)
+		for replace_to_ingr in find_replacements.index:
+			# print(replace_to_ingr)
+			replace_ingr = find_replacements[replace_to_ingr]
+			replace_ingr_cat = ingredient2cat[replace_ingr]
+			replace_to_ingr_cat = ingredient2cat[replace_to_ingr]
+
+			# add the most similar ingredient
+			cocktail_add[replace_to_ingr_cat].append(replace_to_ingr)
+
+			# print(replace_ingr_cat, cocktail_replace[replace_ingr_cat], replace_ingr)
+			# if cocktail ingredient had the same sim with another ingredient of the query just add it
+			if replace_ingr in cocktail_replace[replace_ingr_cat]:
+				cocktail_replace[replace_ingr_cat].remove(replace_ingr)
+			cocktail_replace[replace_to_ingr_cat].append(replace_to_ingr)
+
+		final_cocktails.append(cocktail_add)
+		final_cocktails.append(cocktail_replace)
+		# pprint(final_cocktails)
+		final_cocktails_combo = []
+		for final_cocktail in final_cocktails:
+			for q_extra in q_extras:
+				cat = q_extra[:-1]
+				ingredient = q_extra[-1]
+				final_cocktail[cat].append(ingredient)
+
+			for ind in range(1, len(d_extras) + 1):
+				for combo in combinations(d_extras, ind):
+					tmp_cocktail = deepcopy(final_cocktail)
+					# print('combo', combo)
+					for d_extra in combo:
+						cat = d_extra[:-1]
+						ingredient = d_extra[-1]
+						tmp_cocktail[cat].remove(ingredient)
+					final_cocktails_combo.append(tmp_cocktail)
+		final_cocktails.extend(final_cocktails_combo)
+		res[title] = final_cocktails
+	return res
+
+
+def find_best_adaptation(q, cocktails, cocktail_matches, preference='Default'):
+	final_cocktails = adaptation(cocktail_matches, q, preference)
+	scores_max = []
+	scores_diff = []
+	for title in final_cocktails:
+		adapt_cocktails = final_cocktails[title]
+		cocktail_pmi = get_cocktail_pmi(cocktails[title])
+		adapt_cocktail_pmi_lst = np.array([])
+		for cocktail in adapt_cocktails:
+			adapt_cocktail_pmi = get_cocktail_pmi(cocktail, preference=preference)
+			adapt_cocktail_pmi_lst = np.append(adapt_cocktail_pmi_lst, adapt_cocktail_pmi)
+		diff = np.absolute(adapt_cocktail_pmi_lst - cocktail_pmi)
+		min_ind = diff.argmin()
+		max_ind = adapt_cocktail_pmi_lst.argmax()
+		scores_diff.append((diff[min_ind], title, adapt_cocktails[min_ind]))
+		scores_max.append((diff[max_ind], title, adapt_cocktails[max_ind]))
+
+	return min(scores_diff), max(scores_max)

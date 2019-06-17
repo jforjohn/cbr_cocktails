@@ -11,7 +11,7 @@
 		</div>
 		<div class="form-group row">
 			<label class="col-sm-4" for="vegetable_input">Vegetables</label>
-			<input id="vegetable_input" name="vegetable_input" class="form-control col-sm-8" type="text" placeholder="Ex. cucumber, tomato">
+			<input id="vegetable_input" name="vegetable_input" class="form-control col-sm-8" type="text" placeholder="Ex. wasabi, mint">
 		</div>
 		<div class="form-group row">
 			<label class="col-sm-4" for="alcohol_input">Alcoholic Liqueurs</label>
@@ -29,6 +29,16 @@
 			<label class="col-sm-4" for="other_input">Other additions</label>
 			<input id="other_input" name="other_input" class="form-control col-sm-8" type="text" placeholder="Ex. ice cream, sparkling water">
 		</div>
+		<div class="form-group row">
+			<label class="col-sm-4" for="preferences_input">Other additions</label>
+			<select id="preferences_input" name="preferences_input" class="form-control col-sm-8">
+				<option>Default</option>
+				<option>Alcohol</option>
+				<option>Sweet</option>
+				<option>Sour</option>
+				<option>Fruity</option>
+			</select>
+		</div>
 
   		<button type="submit" class="btn btn-primary">Search for your cocktail</button>
 	</div>
@@ -44,6 +54,7 @@
 		<div class="card col-sm-4">
 			<div class="card-body">
 				<h5 class="card-title">{{cocktail[0]}}</h5>
+				<h6 class="card-title">{{cocktail[2]}}</h6>
 				<ul>
 					{% for ingredient_list in cocktail[1] %}
 						{% for i in ingredient_list %}
@@ -59,6 +70,12 @@
 		</div>
 		{% endfor %}
 	</div>
+</div>
+{% endif %}
+
+
+{% if matchedcocktail %}
+<div class="container">
 </div>
 {% endif %}
 
