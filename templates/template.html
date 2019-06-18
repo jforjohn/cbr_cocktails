@@ -33,7 +33,8 @@
 				    </li>
 			    </ul>
 			    <form action="{{ url_for('catalog') }}" method="post" class="form-inline mt-2 mt-md-0">
-				    <input class="form-control mr-sm-2" name="cocktailName" type="text" placeholder="Search" aria-label="Search">
+					<input type=hidden name="type" value="exact_match"/>
+				    <input class="form-control mr-sm-2" name="cocktailName" type="text" placeholder="Search for a cocktail" aria-label="Search">
 				    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
 			    </form>
 			</div>

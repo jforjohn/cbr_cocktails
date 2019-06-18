@@ -341,12 +341,16 @@ def get_adapted_recipe(name, ingredient, preparation):
 	recipe += ("<title>"+name.strip()+"</title>"+'\n')
 	recipe += ("<ingredients>"+'\n')
 
+	f = open("test", "w")
 	for i in ingredient_list:
-		food = i.strip().replace('[', '').replace(']', '').replace("}}", '').replace("'", '').split(' ', 1)[1]
+		food = i.lower().strip().replace('[', '').replace(']', '').replace("}}", '').replace("'", '').split(' ', 1)[1]
 		if "of " in food:
 			food = food.split('of ', 1)[1]
 		taxonomy = get_ingredient_taxonomy(food, ingredients)
 		if taxonomy == "none":
+			print("wrong ingredient", file=f)
+			print(food, file=f)
+			print(ingredients, file=f)
 			return "wrong ingredient"
 
 		recipe += ("<ingredient food=\""+food+"\">"+i+"</ingredient>"+'\n')
@@ -360,6 +364,14 @@ def get_adapted_recipe(name, ingredient, preparation):
 	recipe += ("</recipe>"+'\n')
 	return recipe
 
+def listToStringWithoutBracketsAdapted(list1):
+	list2 = [i for i in list1 if len(i) > 2]
+	list2 = str(list2).replace('[', '').replace(']', '').replace("}", '').split("'")
+	text = ""
+	for item in list2:
+		if len(item) > 2:
+			text += item + ", "
+	return text.strip()[:-1]
 
 def listToStringWithoutBrackets(list1):
 	list2 = str(list1).replace('[', '').replace(']', '').replace("}}", '').split("'")
@@ -375,6 +387,32 @@ def write_recipe_to_catalog(recipe):
 	for j in recipe:
 		file.write(j)
 	file.write("</recipes>")
+
+
+def get_adapted_cocktail_info(cocktail_name):
+	file = open("adapt.txt", "r")
+	content = file.readlines()
+
+	found = False
+	score = -1
+	ingredients_list = []
+	f = open("test2", "w")
+	for line in content:
+		line = line.rstrip('\n')
+		if score >= 0:
+			ingredients = line
+			print(ingredients, file=f)
+			if ingredients[0] != '[':
+				break
+			ingredients = ingredients[1:-1].replace("'", "").split(",")
+			for i in ingredients:
+				ingredients_list.append(i)
+		if found and score < 0:
+			score = float(line)
+			print(score, file=f)
+		if line == cocktail_name:
+			found = True
+	return score, ingredients_list
 
 
 #########################
@@ -403,6 +441,21 @@ def get_recommendation(input_ingredients, preference):
 	define_globals()
 	all_ingredients, cocktails = read_data()
 	cocktails_list, ingredients_list = get_ingredients_list()
+	ingredient_taxonomies = []
+	for ingredient in input_ingredients:
+		taxonomy = get_ingredient_taxonomy(ingredient, ingredients_list)
+		ingredient_taxonomies.append([taxonomy, ingredient])
+
+	# exact matching
+	cocktail_list_copy = cocktails_list
+	for taxonomy, ingredient in ingredient_taxonomies:
+		for cocktail, ingredients in list(cocktail_list_copy.items()):
+			found = False
+			for i in ingredients.values():
+				if ingredient in i:
+					found = True
+			if not found:
+				del cocktails_list[cocktail]
 
 	for ingredient in input_ingredients:
 		taxonomy = get_ingredient_taxonomy(ingredient, ingredients_list)
@@ -417,7 +470,7 @@ def get_recommendation(input_ingredients, preference):
 	top_n_matches = 3
 	sim_match, cocktail_matches = get_matches(q, cocktails, preference, top_n=top_n_matches)
 	min_difference, max_score = find_best_adaptation(q, cocktails, cocktail_matches, preference)
-	return min_difference, max_score
+	return cocktails_list, min_difference, max_score
 
 
 def define_globals():
@@ -610,7 +663,7 @@ def match_cocktails(q_ingredients_list, cocktails, preference='Default'):
 
 
 def get_matches(q, cocktails, preference, top_n=2):
-	#matches = exactMatchCocktails(q, cocktails)
+	# matches = exactMatchCocktails(q, cocktails, preference)
 	matches = match_cocktails(q, cocktails, preference)
 	titles_sort = sorted(matches, key=lambda x: matches[x][0], reverse=True)
 	max_val = matches[titles_sort[0]][0]

@@ -1,60 +1,62 @@
 {% extends "template.html" %}
 {% block content %}
 
-<form action="{{ url_for('prepare') }}" method="post" name="prepare" style="margin-top: 5%">
-	<h1>Specify your tastes</h1>
-	<hr>
-	<div class="container" style="width:40%">
-		<div class="form-group row">
-			<label class="col-sm-4" for="fruit_input">Fruits</label>
-			<input id="fruit_input" name="fruit_input" class="form-control col-sm-8" type="text" placeholder="Ex. lemon, strawberry">
-		</div>
-		<div class="form-group row">
-			<label class="col-sm-4" for="vegetable_input">Vegetables</label>
-			<input id="vegetable_input" name="vegetable_input" class="form-control col-sm-8" type="text" placeholder="Ex. wasabi, mint">
-		</div>
-		<div class="form-group row">
-			<label class="col-sm-4" for="alcohol_input">Alcoholic Liqueurs</label>
-			<input id="alcohol_input" name="alcohol_input" class="form-control col-sm-8" type="text" placeholder="Ex. cremant, vodka">
-		</div>
-		<div class="form-group row">
-			<label class="col-sm-4" for="non_alcohol_input">Non-alcoholic Liqueurs</label>
-			<input id="non_alcohol_input" name="non_alcohol_input" class="form-control col-sm-8" type="text" placeholder="Ex. orange juice, lemon juice">
-		</div>
-		<div class="form-group row">
-			<label class="col-sm-4" for="enhancer_input">Taste Enhancers</label>
-			<input id="enhancer_input" name="enhancer_input" class="form-control col-sm-8" type="text" placeholder="Ex. sugar, sour cream">
-		</div>
-		<div class="form-group row">
-			<label class="col-sm-4" for="other_input">Other additions</label>
-			<input id="other_input" name="other_input" class="form-control col-sm-8" type="text" placeholder="Ex. ice cream, sparkling water">
-		</div>
-		<div class="form-group row">
-			<label class="col-sm-4" for="preferences_input">Other additions</label>
-			<select id="preferences_input" name="preferences_input" class="form-control col-sm-8">
-				<option>Default</option>
-				<option>Alcohol</option>
-				<option>Sweet</option>
-				<option>Sour</option>
-				<option>Fruity</option>
-			</select>
-		</div>
 
-  		<button type="submit" class="btn btn-primary">Search for your cocktail</button>
-	</div>
-</form>
+<div class="container">
+	<form action="{{ url_for('prepare') }}" method="post" name="prepare" style="margin-top: 7%">
+		<h1>Specify your tastes</h1>
+		<hr>
+		<div class="container" style="width:80%">
+			<div class="form-group row">
+				<label class="col-sm-4" for="fruit_input">Fruits</label>
+				<input id="fruit_input" name="fruit_input" class="form-control col-sm-8" type="text" placeholder="Ex. lime, lemon, strawberry, orange">
+			</div>
+			<div class="form-group row">
+				<label class="col-sm-4" for="vegetable_input">Vegetables</label>
+				<input id="vegetable_input" name="vegetable_input" class="form-control col-sm-8" type="text" placeholder="Ex. wasabi, mint, cucumbers, coriander">
+			</div>
+			<div class="form-group row">
+				<label class="col-sm-4" for="alcohol_input">Alcoholic Drinks</label>
+				<input id="alcohol_input" name="alcohol_input" class="form-control col-sm-8" type="text" placeholder="Ex. cremant, vodka, tequila, martini">
+			</div>
+			<div class="form-group row">
+				<label class="col-sm-4" for="non_alcohol_input">Non-alcoholic Drinks</label>
+				<input id="non_alcohol_input" name="non_alcohol_input" class="form-control col-sm-8" type="text" placeholder="Ex. orange juice, lemon juice, syrup, grenadine">
+			</div>
+			<div class="form-group row">
+				<label class="col-sm-4" for="enhancer_input">Taste Enhancers</label>
+				<input id="enhancer_input" name="enhancer_input" class="form-control col-sm-8" type="text" placeholder="Ex. sugar, sour cream, milk, cofee">
+			</div>
+			<div class="form-group row">
+				<label class="col-sm-4" for="other_input">Other additions</label>
+				<input id="other_input" name="other_input" class="form-control col-sm-8" type="text" placeholder="Ex. ice cube, ice cream, sparkling water">
+			</div>
+			<div class="form-group row">
+				<label class="col-sm-4" for="preferences_input">Preferences</label>
+				<select id="preferences_input" name="preferences_input" class="form-control col-sm-8">
+					<option>Default</option>
+					<option>Alcohol</option>
+					<option>Sweet</option>
+					<option>Sour</option>
+					<option>Fruity</option>
+				</select>
+			</div>
+
+			<button type="submit" class="btn btn-primary">Search for your cocktail</button>
+		</div>
+	</form>
+</div>
 
 {% if matchedcocktail %}
 <div class="container">
 	<hr>
-	<h4>Cocktails Suggested:</h4>
+	<h4>Cocktails Found:</h4>
 	<hr>
 	<div class="row">
 		{% for cocktail in matchedcocktail: %}
 		<div class="card col-sm-4">
 			<div class="card-body">
 				<h5 class="card-title">{{cocktail[0]}}</h5>
-				<h6 class="card-title">{{cocktail[2]}}</h6>
 				<ul>
 					{% for ingredient_list in cocktail[1] %}
 						{% for i in ingredient_list %}
@@ -63,6 +65,37 @@
 					{% endfor %}
 				</ul>
 				<form action="{{ url_for('catalog') }}" method="post" name="catalog">
+					<input type=hidden name="type" value="exact_match"/>
+					<input type=hidden name="cocktailName" value="{{cocktail[0]}}"/>
+					<button class="btn btn-sm btn-outline-primary" style="cursor:pointer">View details</button>
+				</form>
+			</div>
+		</div>
+		{% endfor %}
+	</div>
+</div>
+{% endif %}
+
+{% if adaptedcocktail %}
+<div class="container">
+	<hr>
+	<h4>Cocktails Suggested:</h4>
+	<hr>
+	<div class="row">
+		{% for cocktail in adaptedcocktail: %}
+		<div class="card col-sm-4">
+			<div class="card-body">
+				<h5 class="card-title">{{cocktail[0]}}</h5>
+				<h6 class="card-title">Score: {{cocktail[2]}}</h6>
+				<ul>
+					{% for ingredient_list in cocktail[1] %}
+						{% for i in ingredient_list %}
+						<li>{{i}}</li>
+						{% endfor %}
+					{% endfor %}
+				</ul>
+				<form action="{{ url_for('catalog') }}" method="post" name="catalog">
+					<input type=hidden name="type" value="adapted_match"/>
 					<input type=hidden name="cocktailName" value="{{cocktail[0]}}"/>
 					<button class="btn btn-sm btn-outline-primary" style="cursor:pointer">View details</button>
 				</form>

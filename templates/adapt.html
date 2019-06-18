@@ -1,43 +1,27 @@
 {% extends "template.html" %}
-
 {% block content %}
 
-<div id="centrecontent" style="margin-top:5%">
-{% if name %}
-<font color="#E80000" size=3><label><b>Modify the Details</b></label></font>
-<form action="{{ url_for('adapt') }}" method="post" name="adapt" >
-<table>
-<tr>
-<td><label><b>Cocktail Name</b></label></td>
-<td><input type=text name="adapt_cname" value="{{name}}" /> </td>
-</tr>
-<tr>
-<td><label><b>Cocktail Ingredients</b></label></td>
-<td><textarea name="adapt_cingredients"  rows="4" cols="50">{{IngredientData}}</textarea> </td>
-</tr>
-<tr>
-<td><label><b>Cocktail Preparation</b></label></td>
-<td><textarea name="adapt_cpreparation" rows="4" cols="50">{{PreparationData}}</textarea> </td>
-</tr>
-<tr>
-<input type=hidden name="adapt_name" value="true"/>
-<td><input value="Save" type="submit" /></td>
-<tr>
-</table>
-<pre>
-Tip : 	1.Enter new name for the modified Cocktail
-	2.Each ingredient should be separated by a comma.
-	3.Each preparation step should be separated by a full stop.
-	4.After editing click on Save button
-</pre>
-</form>
-{% elif Saved %}
-<font color="#E80000" size=3><label><b> New case adapted successfully !</b></label></font>
-{% else %}
-<font color="#E80000" size=3><label><b> Sorry, No cases selected to adapt !</b></label></font>
-{% endif %}
+<div class="container" style="margin-top: 7%">
+	<form action="{{ url_for('adapt') }}" method="post" name="adapt">
+		<h1>Specify your tastes</h1>
+		<hr>
+		<div class="form-group">
+			<label for="cocktail_name">Name</label>
+			<input type="text" class="form-control" id="cocktail_name" name="adapt_cname" value="{{name}}">
+			<small id="nameHelp" class="form-text text-muted">Choose a unique name for your cocktail!</small>
+		</div>
+		<div class="form-group">
+			<label for="cocktail_ingredients">Ingredients</label>
+			<textarea class="form-control" name="adapt_cingredients" id="cocktail_ingredients" rows="3">{{IngredientData}}</textarea>
+		</div>
+		<div class="form-group">
+			<label for="cocktail_preparation">Preparation Steps</label>
+			<textarea class="form-control" name="adapt_cpreparation" id="cocktail_preparation" rows="3">{{PreparationData}}</textarea>
+		</div>
+		<input type=hidden name="adapt_name" value="true"/>
 
-
+		<button type="submit" class="btn btn-primary">Save your cocktail</button>
+	</form>
 </div>
 
 {% endblock %}

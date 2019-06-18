@@ -22,13 +22,28 @@ def home():
 @app.route('/catalog', methods=['GET', 'POST'])
 def catalog():
 	if request.method == 'POST':
-		return render_template(
-			'catalog.html',
-			ItemList=[],
-			cocktailname=request.form['cocktailName'],
-			PreparationData=listToStringWithoutBrackets(get_cocktail_preparation(request.form['cocktailName'])),
-			IngredientData=listToStringWithoutBrackets(get_cocktail_ingredient(request.form['cocktailName']))
-		)
+		type = request.form['type']
+		name = request.form['cocktailName']
+		if type == 'exact_match':
+			return render_template(
+				'catalog.html',
+				ItemList=[],
+				cocktailname=name,
+				PreparationData=listToStringWithoutBrackets(get_cocktail_preparation(name)),
+				IngredientData=listToStringWithoutBrackets(get_cocktail_ingredient(name))
+			)
+		else:
+			score, ingredients = get_adapted_cocktail_info(name)
+			f = open("test", "w")
+			print(ingredients, file=f)
+			return render_template(
+				'catalog.html',
+				ItemList=[],
+				cocktailname=name,
+				PreparationData="",
+				IngredientData=listToStringWithoutBrackets(ingredients),
+				adaptation=1
+			)
 	else:
 		return render_template('catalog.html', ItemList=get_cocktail_list())
 		
@@ -49,32 +64,40 @@ def prepare():
 
 		# put_cocktails()
 		# retrieval()
-		cocktail_1, cocktail_2 = get_recommendation(input_ingredients, preference)
+		matched_cocktails_list, cocktail_1, cocktail_2 = get_recommendation(input_ingredients, preference)
 
 		cocktails = []
 		cocktails.append(cocktail_1)
 		cocktails.append(cocktail_2)
-		cocktails_list = []
+		adapted_cocktails_list = []
 		for score, cocktail_name, ingredients in cocktails:
 			ingredients_list = []
 			for ingredient in ingredients.values():
 				if ingredient:
 					ingredients_list.append(ingredient)
-			cocktails_list.append([cocktail_name, ingredients_list, score])
+			adapted_cocktails_list.append([cocktail_name, ingredients_list, score])
 
-		# f = open("test", "w")
-		# for similarity, cocktail, ingredients in cocktails:
-		# 	print(similarity, file=f)
-		# 	print(cocktail, file=f)
-		# 	for category, ingredient in ingredients.items():
-		# 		print(category, file=f)
-		# 		print(ingredient, file=f)
+		cocktails_list = []
+		for cocktail_name, ingredients in matched_cocktails_list.items():
+			ingredients_list = []
+			for ingredient in ingredients.values():
+				if ingredient:
+					ingredients_list.append(ingredient)
+			cocktails_list.append([cocktail_name, ingredients_list])
+
+		f = open("adapt.txt", "w")
+		print(adapted_cocktails_list, file=f)
+		for cocktail, ingredients, score in adapted_cocktails_list:
+			print(cocktail, file=f)
+			print(score, file=f)
+			for ingredient in ingredients:
+				print(ingredient, file=f)
 
 		# cocktail = []
 		# with open('output.txt', 'r') as f:
 		# 	for line in f.readlines():
 		# 		cocktail.append(line.strip().split(','))
-		return render_template('prepare.html', matchedcocktail=cocktails_list)
+		return render_template('prepare.html', matchedcocktail=cocktails_list, adaptedcocktail=adapted_cocktails_list)
 	else:
 		return render_template('prepare.html')
 
@@ -89,15 +112,20 @@ def adapt():
 				request.form['adapt_cingredients'],
 				request.form['adapt_cpreparation']
 			)
+			f = open("test2", "w")
+			print("wrong ingredient", file=f)
+			print(request.form['adapt_cingredients'], file=f)
 			if recipe != "wrong ingredient":
+				print("not wrong ingredient", file=f)
 				write_recipe_to_catalog(recipe)
-			return render_template('adapt.html', Saved="Done")
+			# return render_template('adapt.html', Saved="Done")
+			return render_template('home.html')
 		else:
 			return render_template(
 				'adapt.html',
 				name=request.form['adapt_name'],
-				PreparationData=listToStringWithoutBrackets(get_cocktail_preparation(request.form['adapt_name'])),
-				IngredientData=listToStringWithoutBrackets(get_cocktail_ingredient(request.form['adapt_name']))
+				PreparationData=listToStringWithoutBracketsAdapted(get_cocktail_preparation(request.form['adapt_name'])),
+				IngredientData=listToStringWithoutBracketsAdapted(get_cocktail_ingredient(request.form['adapt_name']))
 			)
 	else:
 		return render_template('adapt.html')
