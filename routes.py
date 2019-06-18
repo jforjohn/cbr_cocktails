@@ -64,11 +64,12 @@ def prepare():
 
 		# put_cocktails()
 		# retrieval()
-		matched_cocktails_list, cocktail_1, cocktail_2 = get_recommendation(input_ingredients, preference)
+		matched_cocktails_list, cocktail_1, cocktail_2, cocktail_3 = get_recommendation(input_ingredients, preference)
 
 		cocktails = []
 		cocktails.append(cocktail_1)
 		cocktails.append(cocktail_2)
+		cocktails.append(cocktail_3)
 		adapted_cocktails_list = []
 		for score, cocktail_name, ingredients in cocktails:
 			ingredients_list = []

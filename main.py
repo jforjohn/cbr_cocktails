@@ -475,7 +475,7 @@ def get_recommendation(input_ingredients, preference):
 	max_sim = (max_sim_score[1], max_sim_score[0], cocktails[max_sim_score[0]])
 	###
 	min_difference, max_score = find_best_adaptation(q, cocktails, cocktail_matches, preference)
-	return cocktails_list, min_difference, max_score
+	return cocktails_list, min_difference, max_score, max_sim
 
 
 def define_globals():
