@@ -10,6 +10,7 @@ from collections import Counter
 from copy import deepcopy
 from math import log
 from itertools import combinations
+from random import randint
 
 
 class Ingredients:
@@ -469,6 +470,10 @@ def get_recommendation(input_ingredients, preference):
 	df_pmi = constract_pmi_table()
 	top_n_matches = 3
 	sim_match, cocktail_matches = get_matches(q, cocktails, preference, top_n=top_n_matches)
+	###
+	max_sim_score = max(sim_match.items(), key=lambda x: x[1])
+	max_sim = (max_sim_score[1], max_sim_score[0], cocktails[max_sim_score[0]])
+	###
 	min_difference, max_score = find_best_adaptation(q, cocktails, cocktail_matches, preference)
 	return cocktails_list, min_difference, max_score
 
@@ -780,11 +785,17 @@ def find_best_adaptation(q, cocktails, cocktail_matches, preference='Default'):
 		adapt_cocktail_pmi_lst = np.array([])
 		for cocktail in adapt_cocktails:
 			adapt_cocktail_pmi = get_cocktail_pmi(cocktail, preference=preference)
+			if adapt_cocktail_pmi != cocktail_pmi:
+				adapt_cocktail_pmi_lst = np.append(adapt_cocktail_pmi_lst, adapt_cocktail_pmi)
+		
+		if not adapt_cocktail_pmi_lst.any():
+			adapt_cocktail_pmi = get_cocktail_pmi(adapt_cocktails[randint(0,len(adapt_cocktails)-1)],
+				preference=preference)
 			adapt_cocktail_pmi_lst = np.append(adapt_cocktail_pmi_lst, adapt_cocktail_pmi)
+		
 		diff = np.absolute(adapt_cocktail_pmi_lst - cocktail_pmi)
 		min_ind = diff.argmin()
 		max_ind = adapt_cocktail_pmi_lst.argmax()
 		scores_diff.append((diff[min_ind], title, adapt_cocktails[min_ind]))
 		scores_max.append((diff[max_ind], title, adapt_cocktails[max_ind]))
-
 	return min(scores_diff), max(scores_max)
